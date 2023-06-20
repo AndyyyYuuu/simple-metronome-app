@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var bpm = 124.0;
     @State private var metronomeState = false;
     @State var ticker = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect();
+    @State var isOn = false;
     
     func playTick() {
         player?.prepareToPlay();
@@ -42,11 +43,12 @@ struct ContentView: View {
             VStack {
                 Image(systemName:"metronome.fill").foregroundColor(getBpmColor()).font(Font.system(size:96)).rotation3DEffect(.degrees(metronomeState ? 180 : 0), axis: (x: 0, y: 1, z: 0)).onReceive(ticker){_ in
                     //tickPlayer = AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "tick", withExtension: "mp3") ?? 0 );
-                    AudioServicesPlaySystemSound(1104);
-                    metronomeState.toggle();
-                    ticker.upstream.connect().cancel();
-                    ticker = Timer.publish(every: 60/bpm, on: .main, in: .common).autoconnect();
-                    
+                    if (isOn){
+                        AudioServicesPlaySystemSound(1104);
+                        metronomeState.toggle();
+                        ticker.upstream.connect().cancel();
+                        ticker = Timer.publish(every: 60/bpm, on: .main, in: .common).autoconnect();
+                    }
                 }
                 HStack{
                     Slider(value: $bpm,
@@ -57,6 +59,11 @@ struct ContentView: View {
                         .stroke(lineWidth:0)
                         .background(Circle().foregroundColor(getBpmColor()))
                         .frame(width: 50, height: 50)
+                        .overlay(Image(systemName:isOn ? "pause.fill":"play.fill").foregroundColor(Color(red:0.25, green:0.25, blue:0.25)))
+                            .font(Font.system(size:32))
+                        .onTapGesture {
+                            isOn.toggle();
+                         }
                 }
                 HStack (alignment: .bottom){
                     Text(String(Int(round(bpm/4)*4))).foregroundColor(getBpmColor()).font(.system(size: 48))
