@@ -16,19 +16,22 @@ struct ContentView: View {
     @State var tickPlayer: AVAudioPlayer?
     @State private var bpm = 124.0;
     @State private var metronomeState = false;
-    @State var ticker = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect();
+    @State var ticker = Timer.publish(every: 0, on: .main, in: .common).autoconnect();
     @State var isOn = false;
     
     func playTick() {
+        
         player?.prepareToPlay();
-        guard let path = Bundle.main.path(forResource: "tick/tick", ofType: "mp3", inDirectory: "tick.dataset") else {
-            return }
+        player?.currentTime = 0;
+        guard let path = Bundle.main.path(forResource: "tick", ofType: "mp3") else { return }
+        
+        print("tick")
         let url = URL(fileURLWithPath: path)
 
         do {
             player = try AVAudioPlayer(contentsOf: url)
             player?.play()
-            
+             
         } catch let error {
             print(error.localizedDescription)
         }
@@ -45,9 +48,11 @@ struct ContentView: View {
                     //tickPlayer = AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "tick", withExtension: "mp3") ?? 0 );
                     if (isOn){
                         AudioServicesPlaySystemSound(1104);
+                        playTick();
                         metronomeState.toggle();
                         ticker.upstream.connect().cancel();
                         ticker = Timer.publish(every: 60/bpm, on: .main, in: .common).autoconnect();
+                        print(60/bpm)
                     }
                 }
                 HStack{
