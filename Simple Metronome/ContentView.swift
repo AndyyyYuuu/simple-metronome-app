@@ -45,14 +45,12 @@ struct ContentView: View {
             Color(red:0.25, green:0.25, blue:0.25).ignoresSafeArea()
             VStack {
                 Image(systemName:"metronome.fill").foregroundColor(getBpmColor()).font(Font.system(size:96)).rotation3DEffect(.degrees(metronomeState ? 180 : 0), axis: (x: 0, y: 1, z: 0)).onReceive(ticker){_ in
-                    //tickPlayer = AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "tick", withExtension: "mp3") ?? 0 );
                     if (isOn){
                         AudioServicesPlaySystemSound(1104);
                         playTick();
                         metronomeState.toggle();
                         ticker.upstream.connect().cancel();
                         ticker = Timer.publish(every: 60/bpm, on: .main, in: .common).autoconnect();
-                        print(60/bpm)
                     }
                 }
                 HStack{
